@@ -9,7 +9,7 @@ import { useState } from "react";
 type Props = {};
 
 export default function TextEditor({}: Props) {
-  const [text, setText] = useState([["a", "b", "a", "b"]]);
+  const [text, setText] = useState([[""]]);
   const [cursor, setCursor] = useState({ row: 0, col: 2 });
 
   const insertCharacter = (char: string) => {
