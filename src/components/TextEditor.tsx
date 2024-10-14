@@ -133,6 +133,7 @@ function EditorText({
   onPointerClick,
   onKeyDown,
 }: EditorTextType) {
+
   const renderText = () => {
     return text.map((line, rowIndex) => {
       const isPointerLine: boolean = cursor.row === rowIndex;
