@@ -5,7 +5,7 @@
 
 import useEditor, { IMethods } from "@/hooks/useEditor";
 import { cn } from "@/lib/utils";
-import { KeyboardEvent, useState } from "react";
+import { KeyboardEvent } from "react";
 
 type Props = {};
 
