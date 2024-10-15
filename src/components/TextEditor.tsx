@@ -5,7 +5,7 @@
 
 import useEditor, { IMethods } from "@/hooks/useEditor";
 import { cn } from "@/lib/utils";
-import { KeyboardEvent } from "react";
+import { KeyboardEvent, useState } from "react";
 
 type Props = {};
 
@@ -13,20 +13,17 @@ export default function TextEditor({}: Props) {
   const {text,cursor,actions,insertCharacter,onEditorPanelClick} = useEditor()
 
   const handleKeyDown = (e: KeyboardEvent) => {
-    e.preventDefault();
     const { key }= e;
     if (key.length === 1) {
       insertCharacter(key);
     }else if (Object.keys(actions).includes(key)){
       actions[key as keyof IMethods]()
     }
-    console.log(`key:${key}`);
-
   };
 
   console.log(`array:${JSON.stringify(text, null, 2)}`);
   return (
-    <div className="relative py-4 flex flex-col items-center justify-center bg-stone-900 text-muted-foreground leading-5 p-4  shadow-xl rounded-lg h-[80vh] w-[80vw] ">
+    <div  className="relative py-4 flex flex-col items-center justify-center bg-stone-900 text-muted-foreground font-mono p-4  shadow-xl rounded-lg h-[80vh] w-[80vw] ">
       <div className="flex  h-[100%] w-[100%] bg-stone-800 overflow-auto ">
         <EditorText
           text={text}
@@ -62,6 +59,8 @@ type EditorTextType = {
 };
 
 function EditorText({onPointerClick,onKeyDown,text,cursor}: EditorTextType) {
+   
+   
 
   const renderText = () => {
     return text.map((line, rowIndex) => {
@@ -69,7 +68,7 @@ function EditorText({onPointerClick,onKeyDown,text,cursor}: EditorTextType) {
       return (
         <>
           <div
-            key={rowIndex}
+            key={`row-${rowIndex}`}
             className={cn(
               "w-full flex   border-t-[1.5px] border-b-[1.5px] border-transparent",
               isPointerLine && " border-stone-600"
@@ -77,7 +76,7 @@ function EditorText({onPointerClick,onKeyDown,text,cursor}: EditorTextType) {
           >
             <span
               className={cn(
-                "w-[3%] px-2 text-muted-foreground",
+                "w-[3%] px-5 text-muted-foreground",
                 isPointerLine && "text-white"
               )}
             >
@@ -85,11 +84,14 @@ function EditorText({onPointerClick,onKeyDown,text,cursor}: EditorTextType) {
             </span>
             {line.map((char, colIndex) => (
               <div
-                key={`${rowIndex}-${colIndex}`}
+                key={`part-row-${rowIndex+1}-${colIndex+rowIndex}`}
                 className="relative z-0 justify-center"
-                onClick={() => onPointerClick(rowIndex, colIndex)}
+                onClick={(e) => {
+                  e.preventDefault()
+                  onPointerClick(rowIndex, colIndex)
+                }}
               >
-                <span className={cn("")}>
+                <span className={cn("inline-block  h-4")}>
                   {char === "space" ? "\u00A0" : `${char}`}
                   {cursor.row === rowIndex && cursor.col === colIndex && (
                     <div className="absolute inset-0 animate-blink-cursor  z-[999] px-px bg-white  w-0.5 h-5 justify-self-start" />
@@ -107,7 +109,6 @@ function EditorText({onPointerClick,onKeyDown,text,cursor}: EditorTextType) {
     <div
       onKeyDown={onKeyDown}
       tabIndex={0}
-      // onFocusCapture={}
       className="w-full flex flex-col whitespace-nowrap overflow-x-auto tracking-wider cursor-text"
     >
       {renderText()}
