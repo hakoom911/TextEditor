@@ -5,12 +5,13 @@
 
 import useEditor, { IMethods } from "@/hooks/useEditor";
 import { cn } from "@/lib/utils";
-import { KeyboardEvent } from "react";
+import { KeyboardEvent, useState } from "react";
 
 type Props = {};
 
 export default function TextEditor({}: Props) {
   const {text,cursor,actions,insertCharacter,onEditorPanelClick} = useEditor()
+  const [isActive,setIsActive] = useState(false);
 
   const handleKeyDown = (e: KeyboardEvent) => {
     const { key }= e;
@@ -23,9 +24,10 @@ export default function TextEditor({}: Props) {
 
   console.log(`array:${JSON.stringify(text, null, 2)}`);
   return (
-    <div  className="relative py-4 flex flex-col items-center text-muted justify-center bg-stone-900 font-mono p-4  shadow-xl rounded-lg h-[80vh] w-[80vw] ">
+    <div onClick={()=>setIsActive(true)}  className="relative py-4 flex flex-col items-center text-muted justify-center bg-stone-900 font-mono p-4  shadow-xl rounded-lg h-[80vh] w-[80vw] ">
       <div className="flex  h-[100%] w-[100%] bg-stone-800 overflow-auto ">
         <EditorText
+          isActive={isActive}
           text={text}
           cursor={cursor}
           onPointerClick={(row, col) => onEditorPanelClick( row, col )}
@@ -56,9 +58,10 @@ type EditorTextType = {
   };
   onPointerClick: (row: number, col: number) => void;
   onKeyDown: (e: any) => void;
+  isActive:boolean;
 };
 
-function EditorText({onPointerClick,onKeyDown,text,cursor}: EditorTextType) {
+function EditorText({onPointerClick,onKeyDown,text,cursor,isActive}: EditorTextType) {
    
   const renderText = () => {
     return text.map((line, rowIndex) => {
@@ -91,7 +94,7 @@ function EditorText({onPointerClick,onKeyDown,text,cursor}: EditorTextType) {
               >
                 <span className={cn("inline-block  h-4")}>
                   {char === "space" ? "\u00A0" : `${char}`}
-                  {cursor.row === rowIndex && cursor.col === colIndex && (
+                  {cursor.row === rowIndex && cursor.col === colIndex && isActive && (
                     <div className="absolute inset-0 animate-blink-cursor  z-[999] px-px bg-white  w-0.5 h-5 justify-self-start" />
                   )}
                 </span>
