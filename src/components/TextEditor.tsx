@@ -127,7 +127,7 @@ export default function TextEditor({}: Props) {
     }
   };
 
-  console.log(`array:${JSON.stringify(text, null, 4)}`);
+  console.log(`array:${JSON.stringify(text, null, 2)}`);
   return (
     <div className="relative py-4 flex flex-col items-center justify-center bg-stone-900 text-muted-foreground leading-5 p-4  shadow-xl rounded-lg h-[80vh] w-[80vw] ">
       <div className="flex  h-[100%] w-[100%] bg-stone-800 overflow-auto ">
@@ -153,6 +153,7 @@ function EditorFooter({ row, col }: { row: number; col: number }) {
     </div>
   );
 }
+
 type EditorTextType = {
   text: string[][];
   cursor: {
