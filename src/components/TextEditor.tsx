@@ -23,7 +23,7 @@ export default function TextEditor({}: Props) {
 
   console.log(`array:${JSON.stringify(text, null, 2)}`);
   return (
-    <div  className="relative py-4 flex flex-col items-center justify-center bg-stone-900 text-muted-foreground font-mono p-4  shadow-xl rounded-lg h-[80vh] w-[80vw] ">
+    <div  className="relative py-4 flex flex-col items-center text-muted justify-center bg-stone-900 font-mono p-4  shadow-xl rounded-lg h-[80vh] w-[80vw] ">
       <div className="flex  h-[100%] w-[100%] bg-stone-800 overflow-auto ">
         <EditorText
           text={text}
@@ -60,8 +60,6 @@ type EditorTextType = {
 
 function EditorText({onPointerClick,onKeyDown,text,cursor}: EditorTextType) {
    
-   
-
   const renderText = () => {
     return text.map((line, rowIndex) => {
       const isPointerLine: boolean = cursor.row === rowIndex;
