@@ -9,10 +9,6 @@ import { KeyboardEvent } from "react";
 
 type Props = {};
 
-
-
-
-
 export default function TextEditor({}: Props) {
   const {text,cursor,actions,insertCharacter,onEditorPanelClick} = useEditor()
 
