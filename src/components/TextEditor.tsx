@@ -20,7 +20,7 @@ export default function TextEditor({}: Props) {
     // ------------------------------------------------
     if (e.ctrlKey && Object.keys(ctrlActions).includes(`Ctrl${e.key}`)) {
       e.preventDefault();
-      ctrlActions[e.key as keyof ICtrlActions]()
+      ctrlActions[`Ctrl${e.key}` as keyof ICtrlActions]()
       return;
     }
 
