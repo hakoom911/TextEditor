@@ -15,6 +15,7 @@ export default function TextEditor({}: Props) {
 
   const handleKeyDown = (e: KeyboardEvent) => {
     const { key }= e;
+    console.log(`the key down is ${e.keyCode}`)
     if (key.length === 1) {
       insertCharacter(key);
     }else if (Object.keys(actions).includes(key)){
@@ -109,6 +110,7 @@ function EditorText({onPointerClick,onKeyDown,text,cursor,isActive}: EditorTextT
   return (
     <div
       onKeyDown={onKeyDown}
+      onKeyDownCapture={(e)=>console.log(`the key down capture is ${e.key}`)}
       tabIndex={0}
       className="w-full flex flex-col whitespace-nowrap overflow-x-auto tracking-wider cursor-text"
     >
