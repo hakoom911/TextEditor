@@ -15,6 +15,7 @@ export default function TextEditor({}: Props) {
 
   const handleKeyDown = (e: KeyboardEvent) => {
       const {ctrlKey,key} = e
+      
     // --------------------------------------------------------
     // Check if the event have ctrl key and it's function exist
     // --------------------------------------------------------
