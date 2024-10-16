@@ -7,118 +7,163 @@ export type IMethods = {
     Enter: () => void,
     Backspace: () => void,
     Delete: () => void,
-    ArrowUp:()=>void
-    ArrowDown:()=>void
+    ArrowUp: () => void
+    ArrowDown: () => void
 }
+
+export type ICtrlActions = {
+    CtrlBackspace: () => void,
+    // CtrlArrowRight: () => void,
+    // CtrlArrowLeft: () => void,
+    // CtrlEnter: () => void,
+    // CtrlDelete: () => void,
+    // CtrlArrowUp: () => void
+    // CtrlArrowDown: () => void
+}
+
+const alpha = new Set(["_", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]);
+
+const findCloserIncompatibleCharIndex = (array: string[], type: "alphaChar" | "space" | "otherChar") => {
+    switch (type) {
+        case "space":
+            for (let i = array.length - 1; i >= 0; i--) {
+                if ((i === 0 && array[i] === "space") || array[i] !== "space") {
+                    return i;
+                }
+            }
+            return -1;
+        case "alphaChar":
+            for (let i = array.length - 1; i >= 0; i--) {
+                if ((i === 0 && alpha.has(array[i].toLowerCase())) || !alpha.has(array[i].toLowerCase())) {
+                    return i;
+                }
+            }
+            return -1
+        default:
+            for (let i = array.length - 1; i >= 0; i--) {
+                if ((i === 0 && !alpha.has(array[i])) || (alpha.has(array[i]) || array[i] === "space")) {
+                    return i;
+                }
+            }
+            return -1;
+    }
+};
 
 export default function useEditor() {
     const [text, setText] = useState<string[][]>([[" "]]);
     const [cursor, setCursor] = useState({ row: 0, col: 0 });
     const [colPreviousPos, setColPreviousPos] = useState(0);
 
+    const { row, col } = cursor;
+
     const onEditorPanelClick = useCallback((row: number, col: number) => {
         setCursor({ row, col });
         setColPreviousPos(col);
     }, [])
 
+
+    // --------------------
+    // Single key actions 
+    // --------------------
+
     const ArrowUp = useCallback(() => {
         const { row } = cursor
         if (row > 0) {
-            const newCol = text[row - 1].length - 1 < colPreviousPos  ? text[row - 1].length - 1 :colPreviousPos
-            setCursor({ row: row-1 , col: newCol });
+            const newCol = text[row - 1].length - 1 < colPreviousPos ? text[row - 1].length - 1 : colPreviousPos
+            setCursor({ row: row - 1, col: newCol });
         }
-    }, [text, cursor,colPreviousPos]);
+    }, [text, cursor, colPreviousPos]);
 
     const ArrowDown = useCallback(() => {
-        const { row} = cursor
+        const { row } = cursor
         if (row < text.length - 1) {
-            const newCol = text[row + 1].length - 1 < colPreviousPos  ? text[row + 1].length - 1 :colPreviousPos
-            setCursor({ row:row+1, col: newCol });
+            const newCol = text[row + 1].length - 1 < colPreviousPos ? text[row + 1].length - 1 : colPreviousPos
+            setCursor({ row: row + 1, col: newCol });
         }
-    }, [text, cursor,colPreviousPos]);
+    }, [text, cursor, colPreviousPos]);
 
     const ArrowRight = useCallback(() => {
-        if (cursor.col < text[cursor.row].length - 1) {
-            setCursor({ ...cursor, col: cursor.col + 1 });
-            setColPreviousPos(cursor.col+1)
-        } else if (cursor.row < text.length - 1) {
-            setCursor({ row: cursor.row + 1, col: 0 });
+        if (col < text[row].length - 1) {
+            setCursor({ ...cursor, col: col + 1 });
+            setColPreviousPos(col + 1)
+        } else if (row < text.length - 1) {
+            setCursor({ row: row + 1, col: 0 });
             setColPreviousPos(0)
 
         }
     }, [text, cursor]);
 
     const ArrowLeft = useCallback(() => {
-        if (cursor.col > 0) {
-            setCursor({ ...cursor, col: cursor.col - 1 });
-            setColPreviousPos(cursor.col-1)
+        if (col > 0) {
+            setCursor({ ...cursor, col: col - 1 });
+            setColPreviousPos(col - 1)
 
-        } else if (cursor.row > 0) {
-            setCursor({ row: cursor.row - 1, col: text[cursor.row - 1].length - 1 });
-            setColPreviousPos(text[cursor.row - 1].length - 1)
+        } else if (row > 0) {
+            setCursor({ row: row - 1, col: text[row - 1].length - 1 });
+            setColPreviousPos(text[row - 1].length - 1)
         }
     }, [text, cursor]);
 
     const Enter = useCallback(() => {
         const newText = [...text];
-        const currentLine = newText[cursor.row];
-        const newLine = currentLine.slice(cursor.col);
-        newText[cursor.row] = currentLine.slice(0, cursor.col);
-        newText.splice(cursor.row + 1, 0, newLine);
-        newText[cursor.row].push(" ");
+        const currentLine = newText[row];
+        const newLine = currentLine.slice(col);
+        newText[row] = currentLine.slice(0, col);
+        newText.splice(row + 1, 0, newLine);
+        newText[row].push(" ");
 
         setText(newText);
-        setCursor({ row: cursor.row + 1, col: 0 });
+        setCursor({ row: row + 1, col: 0 });
         setColPreviousPos(0)
     }, [text, cursor]);
 
     const Backspace = useCallback(() => {
-        if (cursor.col > 0) {
+        if (col > 0) {
             const newText = [...text];
-            const currentLine = newText[cursor.row];
+            const currentLine = newText[row];
 
-            newText[cursor.row] = [
-                ...currentLine.slice(0, cursor.col - 1),
-                ...currentLine.slice(cursor.col),
+            newText[row] = [
+                ...currentLine.slice(0, col - 1),
+                ...currentLine.slice(col),
             ];
 
             setText(newText);
-            setCursor({ row: cursor.row, col: cursor.col - 1});
-            setColPreviousPos(cursor.col - 1 )
-        } else if (cursor.row > 0) {
+            setCursor({ row: row, col: col - 1 });
+            setColPreviousPos(col - 1)
+        } else if (row > 0) {
             const newText = [...text];
-            const previousLine = newText[cursor.row - 1];
+            const previousLine = newText[row - 1];
             previousLine.pop();
-            newText[cursor.row - 1] = [...previousLine, ...newText[cursor.row]];
-            newText.splice(cursor.row, 1);
+            newText[row - 1] = [...previousLine, ...newText[row]];
+            newText.splice(row, 1);
 
             setText(newText);
-            setCursor({ row: cursor.row - 1, col: previousLine.length });
+            setCursor({ row: row - 1, col: previousLine.length });
             setColPreviousPos(previousLine.length)
         }
     }, [text, cursor]);
 
     const Delete = useCallback(() => {
-        if (text[cursor.row].length - 1 > cursor.col) {
+        if (text[row].length - 1 > col) {
             const newText = [...text];
-            const currentLine = newText[cursor.row];
-            const firstPartOfLine = [...currentLine.slice(0, cursor.col + 1)];
+            const currentLine = newText[row];
+            const firstPartOfLine = [...currentLine.slice(0, col + 1)];
 
             firstPartOfLine.pop();
-            newText[cursor.row] = [
+            newText[row] = [
                 ...firstPartOfLine,
-                ...currentLine.slice(cursor.col + 1),
+                ...currentLine.slice(col + 1),
             ];
 
             setText(newText);
-        } else if (text.length - 1 > cursor.row) {
+        } else if (text.length - 1 > row) {
 
             const newText = [...text];
-            const afterLine = newText[cursor.row + 1];
+            const afterLine = newText[row + 1];
 
-            newText[cursor.row].pop()
-            newText[cursor.row] = [...newText[cursor.row], ...afterLine];
-            newText.splice(cursor.row + 1, 1);
+            newText[row].pop()
+            newText[row] = [...newText[row], ...afterLine];
+            newText.splice(row + 1, 1);
 
             setText(newText);
         }
@@ -127,22 +172,66 @@ export default function useEditor() {
     const insertCharacter = useCallback((char: string) => {
         const newText = [...text];
         const newChar = char === " " ? "space" : char;
-        if (newText[cursor.row][newText[cursor.row].length - 1] === " ") {
-            newText[cursor.row].pop();
+        if (newText[row][newText[row].length - 1] === " ") {
+            newText[row].pop();
         }
-        newText[cursor.row] = [
-            ...newText[cursor.row].slice(0, cursor.col),
+        newText[row] = [
+            ...newText[row].slice(0, col),
             newChar,
-            ...newText[cursor.row].slice(cursor.col),
+            ...newText[row].slice(col),
         ];
-        newText[cursor.row].push(" ");
+        newText[row].push(" ");
         setText(newText);
-        setCursor({ row: cursor.row, col: cursor.col + 1 });
-        setColPreviousPos(cursor.col + 1)
+        setCursor({ row: row, col: col + 1 });
+        setColPreviousPos(col + 1)
     }, [text, cursor]);
 
-    const actions: IMethods = { ArrowLeft, ArrowRight, Backspace, Delete, Enter,ArrowUp,ArrowDown }
 
-    return { actions, insertCharacter, onEditorPanelClick, text, cursor }
+    // ----------------------------
+    // Ctrl with other key actions
+    // ----------------------------
+
+    const CtrlBackspace = useCallback(() => {
+        
+        if (text.length === 1 && text[0][0] === " ") return;
+        if (col > 0) {
+            const newText = [...text];
+            let closerIncompatibleCharIndex: number = -1;
+            if (newText[row][col - 1] === "space") {
+                closerIncompatibleCharIndex = findCloserIncompatibleCharIndex(newText[row].slice(0, col - 1), "space");
+            } else if (alpha.has(newText[row][col - 1])) {
+                closerIncompatibleCharIndex = findCloserIncompatibleCharIndex(newText[row].slice(0, col - 1), "alphaChar");
+            } else {
+                closerIncompatibleCharIndex = findCloserIncompatibleCharIndex(newText[row].slice(0, col - 1), "otherChar");
+            }
+
+            if (closerIncompatibleCharIndex !== -1) {
+                closerIncompatibleCharIndex = closerIncompatibleCharIndex > 0 ?  closerIncompatibleCharIndex + 1 : closerIncompatibleCharIndex
+                newText[row] = [...newText[row].slice(0, closerIncompatibleCharIndex), ...newText[row].slice(col)]
+                setText(newText);
+                setCursor({ row, col: closerIncompatibleCharIndex })
+                setColPreviousPos(closerIncompatibleCharIndex)
+            }
+        } else if (row > 0) {
+            const newText = [...text];
+            const previousLine = newText[row - 1];
+            previousLine.pop();
+            newText[row - 1] = [...previousLine, ...newText[row]];
+            newText.splice(row, 1);
+
+            setText(newText);
+            setCursor({ row: row - 1, col: previousLine.length });
+            setColPreviousPos(previousLine.length)
+        }
+    }, [text, cursor])
+
+
+
+
+    const actions: IMethods = { ArrowLeft, ArrowRight, Backspace, Delete, Enter, ArrowUp, ArrowDown }
+
+    const ctrlActions: ICtrlActions = { CtrlBackspace };
+
+    return { actions, ctrlActions, insertCharacter, onEditorPanelClick, text, cursor }
 
 }

@@ -3,19 +3,28 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 /* eslint-disable no-empty-pattern */
 
-import useEditor, { IMethods } from "@/hooks/useEditor";
+import useEditor, { ICtrlActions, IMethods } from "@/hooks/useEditor";
 import { cn } from "@/lib/utils";
 import { KeyboardEvent, useState } from "react";
 
 type Props = {};
 
 export default function TextEditor({}: Props) {
-  const {text,cursor,actions,insertCharacter,onEditorPanelClick} = useEditor()
+  const {text,cursor,actions,ctrlActions,insertCharacter,onEditorPanelClick} = useEditor()
   const [isActive,setIsActive] = useState(false);
 
   const handleKeyDown = (e: KeyboardEvent) => {
+
+    // --------------------------------------------------------
+    // Check if the event have ctrl key and it's function exist
+    // ------------------------------------------------
+    if (e.ctrlKey && Object.keys(ctrlActions).includes(`Ctrl${e.key}`)) {
+      e.preventDefault();
+      ctrlActions[e.key as keyof ICtrlActions]()
+      return;
+    }
+
     const { key }= e;
-    console.log(`the key down is ${e.keyCode}`)
     if (key.length === 1) {
       insertCharacter(key);
     }else if (Object.keys(actions).includes(key)){
@@ -23,7 +32,7 @@ export default function TextEditor({}: Props) {
     }
   };
 
-  console.log(`array:${JSON.stringify(text, null, 2)}`);
+  // console.log(`array:${JSON.stringify(text, null, 2)}`);
   return (
     <div onClick={()=>setIsActive(true)}  className="relative py-4 flex flex-col items-center text-muted justify-center bg-stone-900 font-mono p-4  shadow-xl rounded-lg h-[80vh] w-[80vw] ">
       <div className="flex  h-[100%] w-[100%] bg-stone-800 overflow-auto ">
@@ -110,7 +119,11 @@ function EditorText({onPointerClick,onKeyDown,text,cursor,isActive}: EditorTextT
   return (
     <div
       onKeyDown={onKeyDown}
-      onKeyDownCapture={(e)=>console.log(`the key down capture is ${e.key}`)}
+      // onKeyUp={(e)=>{
+      //   e.preventDefault()
+      //   return console.log(`shift:'${e.shiftKey}' the key:'${e.key}' ctrl:'${e.ctrlKey}'`)}
+      // }
+        
       tabIndex={0}
       className="w-full flex flex-col whitespace-nowrap overflow-x-auto tracking-wider cursor-text"
     >
