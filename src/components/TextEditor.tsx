@@ -10,26 +10,32 @@ import { KeyboardEvent, useState } from "react";
 type Props = {};
 
 export default function TextEditor({}: Props) {
-  const {text,cursor,actions,ctrlActions,insertCharacter,onEditorPanelClick} = useEditor()
+  const {text,cursor,singleKeyActions,ctrlActions,insertCharacter,onEditorPanelClick} = useEditor()
   const [isActive,setIsActive] = useState(false);
 
   const handleKeyDown = (e: KeyboardEvent) => {
-
+      const {ctrlKey,key} = e
+      
     // --------------------------------------------------------
     // Check if the event have ctrl key and it's function exist
     // --------------------------------------------------------
-    if (e.ctrlKey && Object.keys(ctrlActions).includes(`Ctrl${e.key}`)) {
+    if (ctrlKey && Object.keys(ctrlActions).includes(`Ctrl${key}`)) {
       e.preventDefault();
-      ctrlActions[`Ctrl${e.key}` as keyof ICtrlActions]()
+      ctrlActions[`Ctrl${key}` as keyof ICtrlActions]()
       return;
     }
-    
-    const { key }= e;
+
+
+    // --------------------------------------------------------
+    // Check for single key events and it's function exist
+    // --------------------------------------------------------
     if (key.length === 1) {
       insertCharacter(key);
-    }else if (Object.keys(actions).includes(key)){
-      actions[key as keyof IMethods]()
+    }else if (Object.keys(singleKeyActions).includes(key)){
+      e.preventDefault();
+      singleKeyActions[key as keyof IMethods]()
     }
+
   };
 
   // console.log(`array:${JSON.stringify(text, null, 2)}`);

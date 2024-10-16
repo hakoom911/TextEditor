@@ -9,6 +9,7 @@ export type IMethods = {
     Delete: () => void,
     ArrowUp: () => void
     ArrowDown: () => void
+    Tab: () => void
 }
 
 export type ICtrlActions = {
@@ -169,6 +170,15 @@ export default function useEditor() {
         }
     }, [text, cursor]);
 
+    const Tab = useCallback(() => {
+        const newText =[...text];
+        newText[row] = [...newText[row].slice(0,col),"space","space","space","space",...newText[row].slice(col)];
+        setText(newText);
+        setCursor({row,col:col+4});
+        setColPreviousPos(col+4);
+        }
+    , [text, cursor]);
+
     const insertCharacter = useCallback((char: string) => {
         const newText = [...text];
         const newChar = char === " " ? "space" : char;
@@ -228,10 +238,10 @@ export default function useEditor() {
 
 
 
-    const actions: IMethods = { ArrowLeft, ArrowRight, Backspace, Delete, Enter, ArrowUp, ArrowDown }
+    const singleKeyActions: IMethods = { ArrowLeft, ArrowRight, Backspace, Delete, Enter, ArrowUp, ArrowDown ,Tab }
 
     const ctrlActions: ICtrlActions = { CtrlBackspace };
 
-    return { actions, ctrlActions, insertCharacter, onEditorPanelClick, text, cursor }
+    return { singleKeyActions, ctrlActions, insertCharacter, onEditorPanelClick, text, cursor }
 
 }
