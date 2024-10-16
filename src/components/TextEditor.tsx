@@ -10,7 +10,7 @@ import { KeyboardEvent, useState } from "react";
 type Props = {};
 
 export default function TextEditor({}: Props) {
-  const {text,cursor,actions,ctrlActions,insertCharacter,onEditorPanelClick} = useEditor()
+  const {text,cursor,singleKeyActions,ctrlActions,insertCharacter,onEditorPanelClick} = useEditor()
   const [isActive,setIsActive] = useState(false);
 
   const handleKeyDown = (e: KeyboardEvent) => {
@@ -30,11 +30,11 @@ export default function TextEditor({}: Props) {
     // --------------------------------------------------------
     if (key.length === 1) {
       insertCharacter(key);
-    }else if (Object.keys(actions).includes(key)){
+    }else if (Object.keys(singleKeyActions).includes(key)){
       e.preventDefault();
-      actions[key as keyof IMethods]()
+      singleKeyActions[key as keyof IMethods]()
     }
-    
+
   };
 
   // console.log(`array:${JSON.stringify(text, null, 2)}`);

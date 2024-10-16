@@ -238,10 +238,10 @@ export default function useEditor() {
 
 
 
-    const actions: IMethods = { ArrowLeft, ArrowRight, Backspace, Delete, Enter, ArrowUp, ArrowDown ,Tab }
+    const singleKeyActions: IMethods = { ArrowLeft, ArrowRight, Backspace, Delete, Enter, ArrowUp, ArrowDown ,Tab }
 
     const ctrlActions: ICtrlActions = { CtrlBackspace };
 
-    return { actions, ctrlActions, insertCharacter, onEditorPanelClick, text, cursor }
+    return { singleKeyActions, ctrlActions, insertCharacter, onEditorPanelClick, text, cursor }
 
 }
