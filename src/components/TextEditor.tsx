@@ -19,9 +19,10 @@ export default function TextEditor({}: Props) {
     // --------------------------------------------------------
     // Check if the event have ctrl key and it's function exist
     // --------------------------------------------------------
-    if (ctrlKey && Object.keys(ctrlActions).includes(`Ctrl${key}`)) {
+    const upperKey = key.toUpperCase();
+    if (ctrlKey &&  Object.keys(ctrlActions).includes(`Ctrl${upperKey}`) ) {
       e.preventDefault();
-      ctrlActions[`Ctrl${key}` as keyof ICtrlActions]()
+      ctrlActions[`Ctrl${upperKey}` as keyof ICtrlActions]()
       return;
     }
 
@@ -38,7 +39,7 @@ export default function TextEditor({}: Props) {
 
   };
 
-  // console.log(`array:${JSON.stringify(text, null, 2)}`);
+  console.log(`array:${JSON.stringify(text, null, 2)}`);
   return (
     <div onClick={()=>setIsActive(true)}  className="relative py-4 flex flex-col items-center text-muted justify-center bg-stone-900 font-mono p-4  shadow-xl rounded-lg h-[80vh] w-[80vw] ">
       <div className="flex  h-[100%] w-[100%] bg-stone-800 overflow-auto ">
@@ -59,7 +60,6 @@ function EditorFooter({ row, col }: { row: number; col: number }) {
   return (
     <div className=" absolute  bottom-2 z-[999] h-[4%] bg-black items-center justify-between w-[97%] px-4">
       <div className="flex p-1 justify-start text-sm font-bold text-muted-foreground">
-        {/* TODO adding the current row and col */}
         <span>Ln {row + 1}</span> ,<span>Col {col + 1}</span>
       </div>
     </div>
