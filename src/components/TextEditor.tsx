@@ -19,9 +19,10 @@ export default function TextEditor({}: Props) {
     // --------------------------------------------------------
     // Check if the event have ctrl key and it's function exist
     // --------------------------------------------------------
-    if (ctrlKey &&  Object.keys(ctrlActions).includes(`Ctrl${key.toUpperCase()}`) ) {
+    const upperKey = key.toUpperCase();
+    if (ctrlKey &&  Object.keys(ctrlActions).includes(`Ctrl${upperKey}`) ) {
       e.preventDefault();
-      ctrlActions[`Ctrl${key.toUpperCase()}` as keyof ICtrlActions]()
+      ctrlActions[`Ctrl${upperKey}` as keyof ICtrlActions]()
       return;
     }
 
