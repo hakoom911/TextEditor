@@ -59,7 +59,6 @@ function EditorFooter({ row, col }: { row: number; col: number }) {
   return (
     <div className=" absolute  bottom-2 z-[999] h-[4%] bg-black items-center justify-between w-[97%] px-4">
       <div className="flex p-1 justify-start text-sm font-bold text-muted-foreground">
-        {/* TODO adding the current row and col */}
         <span>Ln {row + 1}</span> ,<span>Col {col + 1}</span>
       </div>
     </div>
