@@ -19,9 +19,9 @@ export default function TextEditor({}: Props) {
     // --------------------------------------------------------
     // Check if the event have ctrl key and it's function exist
     // --------------------------------------------------------
-    if (ctrlKey && Object.keys(ctrlActions).includes(`Ctrl${key}`)) {
+    if (ctrlKey &&  Object.keys(ctrlActions).includes(`Ctrl${key.toUpperCase()}`) ) {
       e.preventDefault();
-      ctrlActions[`Ctrl${key}` as keyof ICtrlActions]()
+      ctrlActions[`Ctrl${key.toUpperCase()}` as keyof ICtrlActions]()
       return;
     }
 
@@ -38,7 +38,7 @@ export default function TextEditor({}: Props) {
 
   };
 
-  // console.log(`array:${JSON.stringify(text, null, 2)}`);
+  console.log(`array:${JSON.stringify(text, null, 2)}`);
   return (
     <div onClick={()=>setIsActive(true)}  className="relative py-4 flex flex-col items-center text-muted justify-center bg-stone-900 font-mono p-4  shadow-xl rounded-lg h-[80vh] w-[80vw] ">
       <div className="flex  h-[100%] w-[100%] bg-stone-800 overflow-auto ">

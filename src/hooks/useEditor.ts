@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useCallback, useState } from "react";
+import useCommand, { ICommand } from "./useCommand";
 
 export type IMethods = {
     ArrowRight: () => void,
@@ -13,7 +14,9 @@ export type IMethods = {
 }
 
 export type ICtrlActions = {
-    CtrlBackspace: () => void,
+    CtrlBACKSPACE: () => void,
+    CtrlZ: () => void,
+    CtrlY: () => void,
     // CtrlArrowRight: () => void,
     // CtrlArrowLeft: () => void,
     // CtrlEnter: () => void,
@@ -22,7 +25,13 @@ export type ICtrlActions = {
     // CtrlArrowDown: () => void
 }
 
-const alpha = new Set(["_", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]);
+export interface ICursor {
+    row: number;
+    col: number;
+}
+
+
+const alpha = new Set("abcdefghijklmnopqrstuvwxyz0123456789_".split(""));
 
 const findCloserIncompatibleCharIndex = (array: string[], type: "alphaChar" | "space" | "otherChar") => {
     switch (type) {
@@ -52,8 +61,9 @@ const findCloserIncompatibleCharIndex = (array: string[], type: "alphaChar" | "s
 
 export default function useEditor() {
     const [text, setText] = useState<string[][]>([[" "]]);
-    const [cursor, setCursor] = useState({ row: 0, col: 0 });
+    const [cursor, setCursor] = useState<ICursor>({ row: 0, col: 0 });
     const [colPreviousPos, setColPreviousPos] = useState(0);
+    const { redo, undo, executeCommand } = useCommand();
 
     const { row, col } = cursor;
 
@@ -171,29 +181,17 @@ export default function useEditor() {
     }, [text, cursor]);
 
     const Tab = useCallback(() => {
-        const newText =[...text];
-        newText[row] = [...newText[row].slice(0,col),"space","space","space","space",...newText[row].slice(col)];
+        const newText = [...text];
+        newText[row] = [...newText[row].slice(0, col), "space", "space", "space", "space", ...newText[row].slice(col)];
         setText(newText);
-        setCursor({row,col:col+4});
-        setColPreviousPos(col+4);
-        }
-    , [text, cursor]);
+        setCursor({ row, col: col + 4 });
+        setColPreviousPos(col + 4);
+    }
+        , [text, cursor]);
 
     const insertCharacter = useCallback((char: string) => {
-        const newText = [...text];
-        const newChar = char === " " ? "space" : char;
-        if (newText[row][newText[row].length - 1] === " ") {
-            newText[row].pop();
-        }
-        newText[row] = [
-            ...newText[row].slice(0, col),
-            newChar,
-            ...newText[row].slice(col),
-        ];
-        newText[row].push(" ");
-        setText(newText);
-        setCursor({ row: row, col: col + 1 });
-        setColPreviousPos(col + 1)
+        const insertCommand = insertCharacterCommand(char);
+        executeCommand(insertCommand);
     }, [text, cursor]);
 
 
@@ -201,8 +199,8 @@ export default function useEditor() {
     // Ctrl with other key actions
     // ----------------------------
 
-    const CtrlBackspace = useCallback(() => {
-        
+    const CtrlBACKSPACE = useCallback(() => {
+
         if (text.length === 1 && text[0][0] === " ") return;
         if (col > 0) {
             const newText = [...text];
@@ -216,7 +214,7 @@ export default function useEditor() {
             }
 
             if (closerIncompatibleCharIndex !== -1) {
-                closerIncompatibleCharIndex = closerIncompatibleCharIndex > 0 ?  closerIncompatibleCharIndex + 1 : closerIncompatibleCharIndex
+                closerIncompatibleCharIndex = closerIncompatibleCharIndex > 0 ? closerIncompatibleCharIndex + 1 : closerIncompatibleCharIndex
                 newText[row] = [...newText[row].slice(0, closerIncompatibleCharIndex), ...newText[row].slice(col)]
                 setText(newText);
                 setCursor({ row, col: closerIncompatibleCharIndex })
@@ -235,12 +233,57 @@ export default function useEditor() {
         }
     }, [text, cursor])
 
+    const CtrlZ = useCallback(() => undo(), [undo])
+    const CtrlY = useCallback(() => redo(), [redo])
 
 
 
-    const singleKeyActions: IMethods = { ArrowLeft, ArrowRight, Backspace, Delete, Enter, ArrowUp, ArrowDown ,Tab }
+    //---------------------------------------------
+    // Functions implementation for command pattern
+    //---------------------------------------------
 
-    const ctrlActions: ICtrlActions = { CtrlBackspace };
+    function insertCharacterCommand(char: string): ICommand {
+        const previousCursor: ICursor = { ...cursor }
+        return {
+            execute(): void {
+                const newText = JSON.parse(JSON.stringify(text));
+                const newChar = char === " " ? "space" : char;
+                if (newText[row][newText[row].length - 1] === " ") {
+                    newText[row].pop();
+                }
+                if (newText[row].length - 1 === col) {
+                    newText[row][col] = newChar
+
+                } else {
+                    newText[row] = [
+                        ...newText[row].slice(0, col),
+                        newChar,
+                        ...newText[row].slice(col),
+                    ];
+                }
+                newText[row].push(" ");
+                setText(newText);
+                setCursor({ row: row, col: col + 1 });
+                setColPreviousPos(col + 1)
+            },
+            undo(): void {
+                const prevText = JSON.parse(JSON.stringify(text));
+                prevText[previousCursor.row] = [
+                    ...prevText[row].slice(0, previousCursor.col),
+                    ...prevText[row].slice(previousCursor.col + 1)
+                ];
+                prevText[row].push(" ");
+                setText(prevText);
+                setCursor(previousCursor)
+                setColPreviousPos(previousCursor.col)
+            }
+        }
+    }
+
+
+    const singleKeyActions: IMethods = { ArrowLeft, ArrowRight, Backspace, Delete, Enter, ArrowUp, ArrowDown, Tab }
+
+    const ctrlActions: ICtrlActions = { CtrlBACKSPACE, CtrlZ, CtrlY };
 
     return { singleKeyActions, ctrlActions, insertCharacter, onEditorPanelClick, text, cursor }
 
