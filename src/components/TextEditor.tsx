@@ -39,7 +39,7 @@ export default function TextEditor({}: Props) {
 
   };
 
-  console.log(`array:${JSON.stringify(text, null, 2)}`);
+  // console.log(`array:${JSON.stringify(text, null, 2)}`);
   return (
     <div onClick={()=>setIsActive(true)}  className="relative py-4 flex flex-col items-center text-muted justify-center bg-stone-900 font-mono p-4  shadow-xl rounded-lg h-[80vh] w-[80vw] ">
       <div className="flex  h-[100%] w-[100%] bg-stone-800 overflow-auto ">
@@ -123,6 +123,7 @@ function EditorText({onPointerClick,onKeyDown,text,cursor,isActive}: EditorTextT
   };
 
   return (
+    <>
     <div
       onKeyDown={onKeyDown}
       // onKeyUp={(e)=>{
@@ -135,5 +136,19 @@ function EditorText({onPointerClick,onKeyDown,text,cursor,isActive}: EditorTextT
     >
       {renderText()}
     </div>
+    <div className="h-8 w-full ">
+      <form name="test" id="test" className="w-full" >
+        <input type="file" id="fileInput" onChange={(e) =>{
+
+const files = e.target.files;
+const number = files?.length || 0
+console.log({files},{number})
+        }} />
+
+      </form>
+
+    </div>
+    </>
+    
   );
 }
